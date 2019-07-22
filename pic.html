@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8" />
+<meta
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+	name="viewport" />
+<title>Insert title here</title>
+<script src="https://wechat.muji.com.cn/static/jquery.min.js"></script>
+</head>
+<body>
+	<p></p>
+	<br></br>
+	<br></br>
+	<img src="http://pic.c-ctrip.com/VacationH5Pic/mice/wechat/ewm01.png" id="DemoImg" class="DemoImg" border="0" height="100">
+
+	<a href="#" onclick="downloadIamge('.DemoImg','1.jpg')"> 点击这里下载图片 </a>
+</body>
+</html>
+
+<script>
+	function downloadIamge(selector, name) {
+		var userAgent = navigator.userAgent; //取得浏览器的userAgent字符串
+		if (userAgent.indexOf("Opera") > -1) { //判断是否Opera浏览器
+			return downloadIamgeForChrome(selector, name);
+		}
+		;
+		if (userAgent.indexOf("Firefox") > -1) { //判断是否Firefox浏览器
+			return downloadIamgeForChrome(selector, name);
+		}
+		;
+		if (userAgent.indexOf("Chrome") > -1) {
+			return downloadIamgeForChrome(selector, name);
+		}
+		;
+		if (userAgent.indexOf("Safari") > -1) { //判断是否Safari浏览器
+			return downloadIamgeForChrome(selector, name);
+		}
+		;
+		return SaveAs5ForIE(document.querySelector(selector).src);
+	}
+	function SaveAs5ForIE(imgSrc) {
+		//如果隐藏的iframe不存在则创建
+		if ($("#IframeReportImg").length === 0) {
+			$(
+					'<iframe style="display:none;" id="IframeReportImg" name="IframeReportImg" onload="downloadImgForIE();" width="0" height="0" src="about:blank"></iframe>')
+					.appendTo("body");
+		}
+		//iframe的src属性如不指向图片地址,则手动修改,加载图片
+		if ($('#IframeReportImg').attr("src") != imgSrc) {
+			$('#IframeReportImg').attr("src", imgSrc);
+		} else {
+			//如指向图片地址,直接调用下载方法
+			downloadImgForIE();
+		}
+	}
+	//下载图片的函数
+	function downloadImgForIE() {
+		//iframe的src属性不为空,调用execCommand(),保存图片
+		if ($('#IframeReportImg').src != "about:blank") {
+			window.frames["IframeReportImg"].document.execCommand("SaveAs");
+		}
+	}
+	function downloadIamgeForChrome(selector, name) {
+		var image = new Image()
+		// 解决跨域 Canvas 污染问题
+		image.setAttribute('crossOrigin', 'anonymous')
+		image.onload = function() {
+			var canvas = document.createElement('canvas')
+			canvas.width = image.width
+			canvas.height = image.height
+
+			var context = canvas.getContext('2d')
+			context.drawImage(image, 0, 0, image.width, image.height)
+			var url = canvas.toDataURL('image/png')
+
+			// 生成一个a元素
+			var a = document.createElement('a')
+			// 创建一个单击事件
+			var event = new MouseEvent('click')
+
+			// 将a的download属性设置为我们想要下载的图片名称，若name不存在则使用‘下载图片名称’作为默认名称
+			a.download = name || '下载图片名称'
+			// 将生成的URL设置为a.href属性
+			a.href = url
+
+			// 触发a的单击事件
+			a.dispatchEvent(event)
+		}
+
+		image.src = document.querySelector(selector).src
+	}
+</script>
